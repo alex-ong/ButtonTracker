@@ -69,7 +69,11 @@ while not done:
     #
     # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
     #
-
+    joystick_count = pygame.joystick.get_count()
+    # For each joystick:
+    for i in range(joystick_count):
+        joystick = pygame.joystick.Joystick(i)
+        joystick.init()
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
 

@@ -7,15 +7,25 @@ class ArrowTracker():
         self.right = True
         self.total = 0
         
-    def update(self, event):
-        
+    def update(self, event):        
         if event.type == pygame.JOYBUTTONDOWN:
-            print("Joystick button pressed.")
-            print(event)            
+            if event.button == 0: #left
+                self.left = True
+            elif event.button == 1: #down
+                self.down = True
+            elif event.button == 2: #right
+                self.right = True
+            elif event.button == 3: #down
+                self.up = True
         elif event.type == pygame.JOYBUTTONUP:
-            print("Joystick button released.")
-            print(event)
-            
+            if event.button == 0: #left
+                self.left = False
+            elif event.button == 1: #down
+                self.down = False
+            elif event.button == 2: #right
+                self.right = False
+            elif event.button == 3: #down
+                self.up = False
         elif event.type == pygame.KEYDOWN:
             if event.key == 97: #a
                 self.left = True
