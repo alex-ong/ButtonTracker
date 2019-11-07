@@ -1,10 +1,10 @@
 import pygame
 class ArrowTracker():
     def __init__(self):
-        self.up = False
-        self.down = False
-        self.left = False
-        self.right = False
+        self.up = True
+        self.down = True
+        self.left = True
+        self.right = True
         self.total = 0
         
     def update(self, event):
