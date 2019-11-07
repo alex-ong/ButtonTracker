@@ -17,6 +17,9 @@ class ArrowTracker():
                 self.right = True
             elif event.button == 3: #down
                 self.up = True
+            else:
+                return
+            self.total += 1
         elif event.type == pygame.JOYBUTTONUP:
             if event.button == 0: #left
                 self.left = False
