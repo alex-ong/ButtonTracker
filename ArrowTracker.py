@@ -1,4 +1,10 @@
 import pygame
+LEFT = 0
+DOWN = 1
+UP = 2
+RIGHT = 3
+
+
 class ArrowTracker():
     def __init__(self):
         self.up = True
@@ -9,25 +15,25 @@ class ArrowTracker():
         
     def update(self, event):        
         if event.type == pygame.JOYBUTTONDOWN:
-            if event.button == 0: #left
+            if event.button == LEFT:
                 self.left = True
-            elif event.button == 1: #down
+            elif event.button == DOWN:
                 self.down = True
-            elif event.button == 2: #right
+            elif event.button == RIGHT:
                 self.right = True
-            elif event.button == 3: #down
+            elif event.button == UP: 
                 self.up = True
             else:
                 return
             self.total += 1
         elif event.type == pygame.JOYBUTTONUP:
-            if event.button == 0: #left
+            if event.button == LEFT:
                 self.left = False
-            elif event.button == 1: #down
+            elif event.button == DOWN:
                 self.down = False
-            elif event.button == 2: #right
+            elif event.button == RIGHT: 
                 self.right = False
-            elif event.button == 3: #down
+            elif event.button == UP:
                 self.up = False
         elif event.type == pygame.KEYDOWN:
             if event.key == 97: #a
