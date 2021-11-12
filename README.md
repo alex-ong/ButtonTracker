@@ -1,7 +1,7 @@
 Usage
 ===
 
-Install python 3.8
+Install python 3.8, making sure to `add it to path`
 
 Run `_install.bat`
 
