@@ -1,5 +1,9 @@
 import pygame
 
+import os
+
+# Set this to 1 to enable joystick working in background.
+os.environ["SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS"] = "1"
 
 LEFT = 0
 DOWN = 1
