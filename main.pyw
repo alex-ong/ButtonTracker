@@ -22,8 +22,6 @@ screen = pygame.display.set_mode((300, 300))
 
 pygame.display.set_caption("My Game")
 
-# Loop until the user clicks the close button.
-done = False
 
 # Used to manage how fast the screen updates.
 clock = pygame.time.Clock()
@@ -32,7 +30,7 @@ clock = pygame.time.Clock()
 pygame.joystick.init()
 
 # Get ready to print.
-textPrint = TextPrint()
+text_print = TextPrint()
 
 
 pad = pygame.Rect(0, 0, 150, 150)
@@ -51,50 +49,70 @@ def get_color(active, state):
 
 arrow_state = ArrowState()
 
-# -------- Main Program Loop -----------
-while not done:
-    for event in pygame.event.get():  # User did something.
-        if event.type == pygame.QUIT:  # If user clicked close.
-            done = True  # Flag that we are done so we exit this loop.
-        else:  # pass event to arrowtracker
-            arrow_state.update(event)
-    #
-    # DRAWING STEP
-    #
-    # First, clear the screen to black. Don't put other drawing commands
-    # above this, or they will be erased with this command.
-    screen.fill(BLACK)
+
+def draw_arrows(screen):
+    """draws our arrows"""
     pygame.draw.rect(screen, col3, pad)
     pygame.draw.rect(screen, get_color(col2, arrow_state.left), left)
     pygame.draw.rect(screen, get_color(col1, arrow_state.down), down)
     pygame.draw.rect(screen, get_color(col1, arrow_state.up), up)
     pygame.draw.rect(screen, get_color(col2, arrow_state.right), right)
+
+
+def draw_text(screen, text_print: TextPrint):
+    """Draws our step count"""
     for i in range(5):
-        textPrint.tprint(screen, "")
-    textPrint.tprint(
+        text_print.render(screen, "")
+    text_print.render(
         screen, "Total Steps:  " + str(loadedSteps + arrow_state.total).rjust(7)
     )
-    textPrint.tprint(screen, "Session Steps:" + str(arrow_state.total).rjust(7))
-    textPrint.reset()
+    text_print.render(screen, "Session Steps:" + str(arrow_state.total).rjust(7))
+    text_print.reset()
 
-    #
-    # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
-    #
+
+def refresh_joysticks():
+    """
+    If we plug in our joystick after app start, it needs to be re-initted
+    Note that this is deprecated in 2.x if we ever upgrade pygame
+    """
+
     joystick_count = pygame.joystick.get_count()
-    # For each joystick:
     for i in range(joystick_count):
         joystick = pygame.joystick.Joystick(i)
         joystick.init()
-    # Go ahead and update the screen with what we've drawn.
-    pygame.display.flip()
 
-    # Limit to 60 frames per second.
-    clock.tick(60)
 
-# write our statistics to file.
-writefile(loadedSteps + arrow_state.total)
+def main():
+    """main loop"""
+    # Loop until the user clicks the close button.
+    done = False
 
-# Close the window and quit.
-# If you forget this line, the program will 'hang'
-# on exit if running from IDLE.
-pygame.quit()
+    while not done:
+        for event in pygame.event.get():  # User did something.
+            if event.type == pygame.QUIT:  # If user clicked close.
+                done = True  # Flag that we are done so we exit this loop.
+            else:  # pass event to arrowtracker
+                arrow_state.update(event)
+
+        # clear screen and draw all elements
+        screen.fill(BLACK)
+        draw_arrows(screen)
+        draw_text(screen, text_print)
+
+        refresh_joysticks()
+
+        # Go ahead and update the screen with what we've drawn.
+        pygame.display.flip()
+
+        # Limit to 60 frames per second.
+        clock.tick(60)
+
+    # write our statistics to file.
+    writefile(loadedSteps + arrow_state.total)
+
+    # Close the window and quit.
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()

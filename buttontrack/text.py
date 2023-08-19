@@ -12,8 +12,8 @@ class TextPrint(object):
         self.reset()
         self.font = pygame.font.Font("assets/PressStartK_proper8.ttf", 12)
 
-    def tprint(self, screen, textString):
-        textBitmap = self.font.render(textString, True, WHITE)
+    def render(self, screen, text):
+        textBitmap = self.font.render(text, True, WHITE)
         screen.blit(textBitmap, (self.x, self.y))
         self.y += self.line_height
 
