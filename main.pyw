@@ -1,5 +1,8 @@
 from TextPrint import TextPrint
 from ArrowTracker import ArrowTracker
+import os
+# Set this to 1 to enable 
+
 import pygame
 from stats import readfile, writefile
 
@@ -77,7 +80,7 @@ while not done:
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
 
-    # Limit to 20 frames per second.
+    # Limit to 60 frames per second.
     clock.tick(60)
 
 #write our statistics to file.
