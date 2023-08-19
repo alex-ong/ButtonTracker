@@ -1,3 +1,6 @@
+"""
+Class to keep button state
+"""
 import pygame
 
 import os
@@ -12,14 +15,22 @@ RIGHT = 3
 
 
 class ArrowState:
+    """Class that keeps track of how many arrows you've pressed"""
+
     def __init__(self):
         self.up = True
         self.down = True
         self.left = True
         self.right = True
-        self.total = 0
+        self._buttons_pressed = 0
+
+    @property
+    def buttons_pressed(self):
+        """returns how many buttons you pressed"""
+        return self._buttons_pressed
 
     def update(self, event):
+        """pleb code instead of a nice map..."""
         if event.type == pygame.JOYBUTTONDOWN:
             if event.button == LEFT:
                 self.left = True
@@ -31,7 +42,7 @@ class ArrowState:
                 self.up = True
             else:
                 return
-            self.total += 1
+            self._buttons_pressed += 1
         elif event.type == pygame.JOYBUTTONUP:
             if event.button == LEFT:
                 self.left = False
@@ -52,7 +63,7 @@ class ArrowState:
                 self.up = True
             else:
                 return  # don't add one to count
-            self.total += 1
+            self._buttons_pressed += 1
 
         elif event.type == pygame.KEYUP:
             if event.key == 97:  # a

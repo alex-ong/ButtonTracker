@@ -1,7 +1,6 @@
 import pygame
 
-BLACK = pygame.Color("black")
-WHITE = pygame.Color("white")
+from buttontrack.colors import WHITE
 
 
 # This is a simple class that will help us print to the screen.
