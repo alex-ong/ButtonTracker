@@ -1,0 +1,26 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "alexo", email = "the.onga@gmail.com"},
+]
+dependencies = [
+    "pygame==1.9.6",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm]
+[[tool.pdm.source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[tool.pdm.scripts]
+_.env_file = ".env"
+
+[tool.pdm.dev-dependencies]
+dev = []
+

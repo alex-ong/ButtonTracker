@@ -1,18 +1,17 @@
-from TextPrint import TextPrint
-from ArrowTracker import ArrowTracker
-import os
-# Set this to 1 to enable 
-
 import pygame
-from stats import readfile, writefile
+from buttontrack.text import TextPrint
+from buttontrack.arrowstate import ArrowState
+from buttontrack.stats import readfile, writefile
 
-    
+# Set this to 1 to enable
+
+
 # Define some colors.
-BLACK = pygame.Color('black')
-WHITE = pygame.Color('white')
-col1 = [255,0,0]
-col2 = [0,0,255]
-col3 = [0,255,0] 
+BLACK = pygame.Color("black")
+WHITE = pygame.Color("white")
+col1 = [255, 0, 0]
+col2 = [0, 0, 255]
+col3 = [0, 255, 0]
 
 loadedSteps = readfile()
 
@@ -36,37 +35,46 @@ pygame.joystick.init()
 textPrint = TextPrint()
 
 
-pad = pygame.Rect(0,0,150,150)
-left =  pygame.Rect(0, 50, 50, 50)
-down =  pygame.Rect(50, 100, 50, 50)
-up  =  pygame.Rect(50, 0, 50, 50)
-right =  pygame.Rect(100, 50, 50, 50)
+pad = pygame.Rect(0, 0, 150, 150)
+left = pygame.Rect(0, 50, 50, 50)
+down = pygame.Rect(50, 100, 50, 50)
+up = pygame.Rect(50, 0, 50, 50)
+right = pygame.Rect(100, 50, 50, 50)
 
-   
-at = ArrowTracker()
+
+def get_color(active, state):
+    """returns color based on state"""
+    if state:
+        return active
+    return col3
+
+
+arrow_state = ArrowState()
 
 # -------- Main Program Loop -----------
-while not done:    
-    for event in pygame.event.get(): # User did something.
-        if event.type == pygame.QUIT: # If user clicked close.
-            done = True # Flag that we are done so we exit this loop.
-        else: #pass event to arrowtracker
-            at.update(event)
+while not done:
+    for event in pygame.event.get():  # User did something.
+        if event.type == pygame.QUIT:  # If user clicked close.
+            done = True  # Flag that we are done so we exit this loop.
+        else:  # pass event to arrowtracker
+            arrow_state.update(event)
     #
     # DRAWING STEP
     #
-    # First, clear the screen to white. Don't put other drawing commands
+    # First, clear the screen to black. Don't put other drawing commands
     # above this, or they will be erased with this command.
     screen.fill(BLACK)
     pygame.draw.rect(screen, col3, pad)
-    pygame.draw.rect(screen, col2 if at.left else col3, left)
-    pygame.draw.rect(screen, col1 if at.down else col3, down)
-    pygame.draw.rect(screen, col1 if at.up else col3, up)
-    pygame.draw.rect(screen, col2 if at.right else col3, right)
+    pygame.draw.rect(screen, get_color(col2, arrow_state.left), left)
+    pygame.draw.rect(screen, get_color(col1, arrow_state.down), down)
+    pygame.draw.rect(screen, get_color(col1, arrow_state.up), up)
+    pygame.draw.rect(screen, get_color(col2, arrow_state.right), right)
     for i in range(5):
         textPrint.tprint(screen, "")
-    textPrint.tprint(screen, "Total Steps:  " +str(loadedSteps + at.total).rjust(7))
-    textPrint.tprint(screen, "Session Steps:" +str(at.total).rjust(7))
+    textPrint.tprint(
+        screen, "Total Steps:  " + str(loadedSteps + arrow_state.total).rjust(7)
+    )
+    textPrint.tprint(screen, "Session Steps:" + str(arrow_state.total).rjust(7))
     textPrint.reset()
 
     #
@@ -83,8 +91,8 @@ while not done:
     # Limit to 60 frames per second.
     clock.tick(60)
 
-#write our statistics to file.
-writefile(loadedSteps+at.total)
+# write our statistics to file.
+writefile(loadedSteps + arrow_state.total)
 
 # Close the window and quit.
 # If you forget this line, the program will 'hang'

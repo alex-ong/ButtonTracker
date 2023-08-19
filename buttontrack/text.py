@@ -10,7 +10,7 @@ WHITE = pygame.Color("white")
 class TextPrint(object):
     def __init__(self):
         self.reset()
-        self.font = pygame.font.Font("PressStartK_proper8.ttf", 12)
+        self.font = pygame.font.Font("assets/PressStartK_proper8.ttf", 12)
 
     def tprint(self, screen, textString):
         textBitmap = self.font.render(textString, True, WHITE)

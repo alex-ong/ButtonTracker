@@ -11,7 +11,7 @@ UP = 2
 RIGHT = 3
 
 
-class ArrowTracker:
+class ArrowState:
     def __init__(self):
         self.up = True
         self.down = True
