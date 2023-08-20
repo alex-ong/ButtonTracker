@@ -1,7 +1,9 @@
 """
 main game class
 """
+import asyncio
 import pygame
+import time
 from buttontrack.arrowstate import ArrowState
 from buttontrack.colors import GREEN, RED, BLUE, BLACK
 
@@ -29,6 +31,8 @@ def get_color(active, state):
 class Game:
     """main class for game"""
 
+    FPS = 60
+
     def __init__(self):
         self.starting_steps = readfile()
 
@@ -37,10 +41,10 @@ class Game:
 
         self.screen = pygame.display.set_mode((300, 300))
 
-        self.clock = pygame.time.Clock()
         self.text_printer = TextPrint()
         self.arrow_state = ArrowState()
         self.joysticks = {}
+        self.done = False  # set to true to end.
 
     @property
     def total_steps(self):
@@ -75,27 +79,34 @@ class Game:
             "Session Steps:" + str(self.arrow_state.buttons_pressed).rjust(7),
         )
 
-    def main(self):
-        """main loop"""
-        done = False  # Loop until the user clicks the close button.
+    async def handle_events(self, loop: asyncio.AbstractEventLoop):
+        # event handler
+        while not self.done:
+            await asyncio.sleep(0)
+            event = pygame.event.poll()
+            if event.type == pygame.NOEVENT:
+                continue
+            if event.type == pygame.QUIT:  # If user clicked close.
+                self.done = True  # Flag that we are done so we exit this loop.
+                loop.stop()  # stop asyhcio
+            elif event.type == pygame.JOYDEVICEADDED:
+                # You need to assign the variable otherwise it gets garbage collected.
+                # Once its created (and still in scope), it will create pygame.JOYBUTTONDOWN events
+                joystick = pygame.joystick.Joystick(event.device_index)
+                self.joysticks[joystick.get_instance_id()] = joystick
+            elif event.type == pygame.JOYDEVICEREMOVED:
+                del self.joysticks[joystick.get_instance_id()]
 
-        while not done:
-            for event in pygame.event.get():  # User did something.
-                if event.type == pygame.QUIT:  # If user clicked close.
-                    done = True  # Flag that we are done so we exit this loop.
-                elif event.type == pygame.JOYDEVICEADDED:
-                    # You need to assign the variable otherwise it gets garbage collected.
-                    # Once its created (and still in scope), it will create pygame.JOYBUTTONDOWN events
-                    joystick = pygame.joystick.Joystick(event.device_index)
-                    self.joysticks[joystick.get_instance_id()] = joystick
-                elif event.type == pygame.JOYDEVICEREMOVED:
-                    del self.joysticks[joystick.get_instance_id()]
+            else:  # pass event to arrowtracker
+                print(f"an event..., {event.type}")
+                self.arrow_state.update(event)
 
-                else:  # pass event to arrowtracker
-                    print(f"an event..., {event.type}")
-
-                    self.arrow_state.update(event)
-
+    async def handle_draw(self):
+        """
+        'thread' to draw to screen
+        """
+        current_time = 0
+        while not self.done:
             # clear screen and draw all elements
             self.screen.fill(BLACK)
             self.draw_arrows()
@@ -104,8 +115,21 @@ class Game:
             # Go ahead and update the screen with what we've drawn.
             pygame.display.flip()
 
-            # Limit to 60 frames per second.
-            self.clock.tick(60)
+            last_time, current_time = current_time, time.time()
+            await asyncio.sleep(1.0 / self.FPS - (current_time - last_time))  # tick
+            # print("handle_draw")
+
+    def main(self):
+        """
+        main function. Runs event handling and drawing in two "threads"
+        By threads i mean "asynchronously"
+        """
+
+        loop = asyncio.get_event_loop()
+        asyncio.ensure_future(self.handle_events(loop))
+        asyncio.ensure_future(self.handle_draw())
+
+        loop.run_forever()  # self.handle_events will call loop.stop()
 
         # write our statistics to file.
         writefile(self.total_steps)
