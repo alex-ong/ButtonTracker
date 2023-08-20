@@ -20,7 +20,7 @@ class PadRect:
 
 
 def get_color(active, state):
-    """returns color based on state"""
+    """returns color of button based on state"""
     if state:
         return active
     return GREEN
@@ -33,12 +33,14 @@ class Game:
         self.starting_steps = readfile()
 
         pygame.init()
-        pygame.joystick.init()
         pygame.display.set_caption("Step trAAAcker")
+
         self.screen = pygame.display.set_mode((300, 300))
+
         self.clock = pygame.time.Clock()
         self.text_printer = TextPrint()
         self.arrow_state = ArrowState()
+        self.joysticks = {}
 
     @property
     def total_steps(self):
@@ -73,35 +75,31 @@ class Game:
             "Session Steps:" + str(self.arrow_state.buttons_pressed).rjust(7),
         )
 
-    def refresh_joysticks(self):
-        """
-        If we plug in our joystick after app start, it needs to be re-initted
-        Note that this is deprecated in 2.x if we ever upgrade pygame
-        """
-
-        joystick_count = pygame.joystick.get_count()
-        for i in range(joystick_count):
-            joystick = pygame.joystick.Joystick(i)
-            joystick.init()
-
     def main(self):
         """main loop"""
-        # Loop until the user clicks the close button.
-        done = False
+        done = False  # Loop until the user clicks the close button.
 
         while not done:
             for event in pygame.event.get():  # User did something.
                 if event.type == pygame.QUIT:  # If user clicked close.
                     done = True  # Flag that we are done so we exit this loop.
+                elif event.type == pygame.JOYDEVICEADDED:
+                    # You need to assign the variable otherwise it gets garbage collected.
+                    # Once its created (and still in scope), it will create pygame.JOYBUTTONDOWN events
+                    joystick = pygame.joystick.Joystick(event.device_index)
+                    self.joysticks[joystick.get_instance_id()] = joystick
+                elif event.type == pygame.JOYDEVICEREMOVED:
+                    del self.joysticks[joystick.get_instance_id()]
+
                 else:  # pass event to arrowtracker
+                    print(f"an event..., {event.type}")
+
                     self.arrow_state.update(event)
 
             # clear screen and draw all elements
             self.screen.fill(BLACK)
             self.draw_arrows()
             self.draw_text()
-
-            self.refresh_joysticks()
 
             # Go ahead and update the screen with what we've drawn.
             pygame.display.flip()
