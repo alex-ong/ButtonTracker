@@ -38,10 +38,9 @@ class Game:
 
         pygame.init()
         pygame.display.set_caption("Step trAAAcker")
-
-        self.screen = pygame.display.set_mode((300, 300))
         logo = pygame.image.load("assets/logo.png")
         pygame.display.set_icon(logo)
+        self.screen = pygame.display.set_mode((350, 300))
 
         self.text_printer = TextPrint()
         self.arrow_state = ArrowState()
