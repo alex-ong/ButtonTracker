@@ -80,16 +80,11 @@ class Game:
             "Session Steps:" + str(self.arrow_state.buttons_pressed).rjust(7),
         )
 
-    async def handle_events(self, loop: asyncio.AbstractEventLoop):
-        # event handler
-        while not self.done:
-            await asyncio.sleep(0)
-            event = pygame.event.poll()
-            if event.type == pygame.NOEVENT:
-                continue
+    def handle_events(self):
+        """handle all events produced since last frame"""
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:  # If user clicked close.
                 self.done = True  # Flag that we are done so we exit this loop.
-                loop.stop()  # stop asyhcio
             elif event.type == pygame.JOYDEVICEADDED:
                 # You need to assign the variable otherwise it gets garbage collected.
                 # Once its created (and still in scope), it will create pygame.JOYBUTTONDOWN events
@@ -97,28 +92,30 @@ class Game:
                 self.joysticks[joystick.get_instance_id()] = joystick
             elif event.type == pygame.JOYDEVICEREMOVED:
                 del self.joysticks[joystick.get_instance_id()]
-
             else:  # pass event to arrowtracker
-                print(f"an event..., {event.type}")
                 self.arrow_state.update(event)
 
-    async def handle_draw(self):
+    def draw(self):
+        """draw current state to screen"""
+        self.screen.fill(BLACK)
+        self.draw_arrows()
+        self.draw_text()
+
+        # Go ahead and update the screen with what we've drawn.
+        pygame.display.flip()
+
+    async def async_game(self, loop):
         """
-        'thread' to draw to screen
+        'thread' to run the game
         """
         current_time = 0
         while not self.done:
-            # clear screen and draw all elements
-            self.screen.fill(BLACK)
-            self.draw_arrows()
-            self.draw_text()
-
-            # Go ahead and update the screen with what we've drawn.
-            pygame.display.flip()
-
+            self.handle_events()
+            self.draw()
             last_time, current_time = current_time, time.time()
             await asyncio.sleep(1.0 / self.FPS - (current_time - last_time))  # tick
-            # print("handle_draw")
+
+        loop.stop()
 
     def main(self):
         """
@@ -127,8 +124,7 @@ class Game:
         """
 
         loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self.handle_events(loop))
-        asyncio.ensure_future(self.handle_draw())
+        asyncio.ensure_future(self.async_game(loop))
 
         loop.run_forever()  # self.handle_events will call loop.stop()
 
