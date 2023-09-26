@@ -1,0 +1,8 @@
+python3 -m pip install pipx
+pipx install poetry
+
+pipx ensurepath
+poetry self add poetry-dotenv-plugin
+poetry install
+
+echo If poetry failed to install, restart the terminal!

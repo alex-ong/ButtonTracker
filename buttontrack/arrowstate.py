@@ -49,13 +49,31 @@ class ArrowState:
         """return current step interval, then create a new one"""
         self._step_interval.end_ts = current_ts()
         result = self._step_interval
-        self._step_session = StepInterval()
+        self._step_interval = StepInterval()
         return result
+
+    @property
+    def step_count(self):
+        """return current steps in interval"""
+        return self._step_interval.num_steps
+
+    @property
+    def last_updated(self):
+        """return last time we added a step in seconds since epoch"""
+        return self._step_interval.end_ts
 
     @property
     def buttons_pressed(self):
         """returns how many buttons in current step_session"""
         return self._step_interval.num_steps
+
+    @property
+    def is_neutral(self):
+        """returns if no buttons are held down"""
+        for button in [self.left, self.down, self.right, self.up]:
+            if button:
+                return False
+        return True
 
     def update(self, event):
         """pleb code instead of a nice map..."""
@@ -92,7 +110,6 @@ class ArrowState:
             else:
                 return  # don't add one to count
             self._step_interval.add_step()
-
         elif event.type == pygame.KEYUP:
             if event.key == 97:  # a
                 self.left = False

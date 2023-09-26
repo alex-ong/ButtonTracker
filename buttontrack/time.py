@@ -7,5 +7,5 @@ import time
 
 def current_ts():
     """return current seconds since unix epoch"""
-    dt = datetime.now(datetime.timezone.utc)
+    dt = datetime.datetime.now(datetime.timezone.utc)
     return time.mktime(dt.timetuple())

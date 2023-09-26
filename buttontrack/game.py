@@ -5,6 +5,7 @@ import asyncio
 import pygame
 import time
 from buttontrack.arrowstate import ArrowState
+from buttontrack.steptracker import StepTracker
 from buttontrack.colors import GREEN, RED, BLUE, BLACK
 
 from buttontrack.stats import readfile, writefile
@@ -34,8 +35,7 @@ class Game:
     FPS = 60
 
     def __init__(self):
-        self.starting_steps = readfile()
-
+        """Initialize our window and datatypes"""
         pygame.init()
         pygame.display.set_caption("Step trAAAcker")
         logo = pygame.image.load("assets/logo.png")
@@ -44,13 +44,9 @@ class Game:
 
         self.text_printer = TextPrint()
         self.arrow_state = ArrowState()
+        self.step_overview = StepTracker(self.arrow_state)
         self.joysticks = {}
         self.done = False  # set to true to end.
-
-    @property
-    def total_steps(self):
-        """return total steps of all time"""
-        return self.starting_steps + self.arrow_state.buttons_pressed
 
     def draw_arrows(self):
         """draws our arrows"""
@@ -73,11 +69,15 @@ class Game:
             self.text_printer.render(self.screen, "")
         self.text_printer.render(
             self.screen,
-            "Total Steps:  " + str(self.total_steps).rjust(7),
+            "Total:    " + str(self.step_overview.steps_total).rjust(7),
         )
         self.text_printer.render(
             self.screen,
-            "Session Steps:" + str(self.arrow_state.buttons_pressed).rjust(7),
+            "Session:  " + str(self.step_overview.steps_session).rjust(7),
+        )
+        self.text_printer.render(
+            self.screen,
+            "Interval: " + str(self.step_overview.steps_interval).rjust(7),
         )
 
     def handle_events(self):
@@ -112,6 +112,7 @@ class Game:
         while not self.done:
             self.handle_events()
             self.draw()
+            self.step_overview.update()
             last_time, current_time = current_time, time.time()
             await asyncio.sleep(1.0 / self.FPS - (current_time - last_time))  # tick
 
@@ -129,7 +130,7 @@ class Game:
         loop.run_forever()  # self.handle_events will call loop.stop()
 
         # write our statistics to file.
-        writefile(self.total_steps)
+        writefile(self.step_overview.steps_total)
 
         # Close the window and quit.
         pygame.quit()
